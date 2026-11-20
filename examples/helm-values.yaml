@@ -1,0 +1,52 @@
+# Helm values for the argo-helm "argo-cd" chart (https://github.com/argoproj/argo-helm)
+#
+# Replaces the stock repo-server image with the transcrypt-enabled image and
+# mounts the transcrypt password secret. Use this when ArgoCD is installed via Helm;
+# for installations from the upstream manifests use the Kustomize overlay instead
+# (kubernetes/overlays/production).
+#
+# Prerequisite: the secret "transcrypt-password" exists in the ArgoCD namespace
+# (see README, step 2; one key per repository), e.g.
+#   kubectl create secret generic transcrypt-password \
+#     --from-literal=github.com_myorg_myrepo='your-transcrypt-password' \
+#     --from-literal=cipher='aes-256-cbc' -n argocd
+#
+# Usage:
+#   helm upgrade --install argocd argo/argo-cd -n argocd -f examples/helm-values.yaml
+
+global:
+  # Makes the mounted secret readable for the non-root argocd user (UID/GID 999)
+  securityContext:
+    fsGroup: 999
+
+repoServer:
+  image:
+    repository: ghcr.io/steled/argocd-transcrypt-plugin
+    # Combined tag: <argocd-version>-transcrypt-<plugin-version>
+    tag: v3.5.6-transcrypt-v1.0.0
+
+  env:
+    - name: TRANSCRYPT_CIPHER
+      valueFrom:
+        secretKeyRef:
+          name: transcrypt-password
+          key: cipher
+          optional: true
+    - name: TRANSCRYPT_PASSWORD_DIR
+      value: /transcrypt-secret
+
+  volumes:
+    - name: transcrypt-secret
+      secret:
+        secretName: transcrypt-password
+        defaultMode: 0440
+
+  volumeMounts:
+    - name: transcrypt-secret
+      mountPath: /transcrypt-secret
+      readOnly: true
+
+# Only needed if the ghcr.io package is private:
+# global:
+#   imagePullSecrets:
+#     - name: container-registry-credentials

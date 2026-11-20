@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-repo-server
+  namespace: argocd
+spec:
+  template:
+    spec:     
+      # Main repo-server container with custom image
+      containers:
+        - name: argocd-repo-server
+          # Custom image with transcrypt support
+          image: ghcr.io/steled/argocd-transcrypt-plugin:v1.0.0
+          imagePullPolicy: IfNotPresent
+          
+          # Environment variables for transcrypt configuration
+          env:
+            - name: TRANSCRYPT_CIPHER
+              valueFrom:
+                secretKeyRef:
+                  name: transcrypt-password
+                  key: cipher
+                  optional: true
+            - name: TRANSCRYPT_PASSWORD_DIR
+              value: /transcrypt-secret
+            - name: HOME
+              value: /home/argocd
+          
+          # Volume mounts
+          volumeMounts:
+            - name: transcrypt-secret
+              mountPath: /transcrypt-secret
+              readOnly: true
+            # These are standard ArgoCD mounts - keep them
+            - name: ssh-known-hosts
+              mountPath: /app/config/ssh
+            - name: tls-certs
+              mountPath: /app/config/tls
+            - name: gpg-keys
+              mountPath: /app/config/gpg/source
+            - name: gpg-keyring
+              mountPath: /app/config/gpg/keys
+            - name: argocd-repo-server-tls
+              mountPath: /app/config/reposerver/tls
+            - name: plugins
+              mountPath: /home/argocd/cmp-server/plugins
+            - name: tmp
+              mountPath: /tmp
+            - name: helm-working-dir
+              mountPath: /helm-working-dir
+          
+          # Security context
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 999  # argocd user
+            capabilities:
+              drop:
+                - ALL
+          
+          # Resource limits (adjust as needed)
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+      
+      # Volumes
+      volumes:
+        - name: transcrypt-secret
+          secret:
+            secretName: transcrypt-password
+            defaultMode: 0440  # Readable by owner and fsGroup (argocd user, GID 999)
+        # Standard ArgoCD volumes - keep these
+        - name: ssh-known-hosts
+          configMap:
+            name: argocd-ssh-known-hosts-cm
+        - name: tls-certs
+          configMap:
+            name: argocd-tls-certs-cm
+        - name: gpg-keys
+          configMap:
+            name: argocd-gpg-keys-cm
+        - name: gpg-keyring
+          emptyDir: {}
+        - name: argocd-repo-server-tls
+          secret:
+            secretName: argocd-repo-server-tls
+            optional: true
+        - name: plugins
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: helm-working-dir
+          emptyDir: {}
+      
+      # Security context for the pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999

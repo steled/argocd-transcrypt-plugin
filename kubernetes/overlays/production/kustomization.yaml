@@ -1,0 +1,47 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: argocd
+
+resources:
+  - ../../base
+
+# Override image tag for production
+images:
+  - name: ghcr.io/steled/argocd-transcrypt-plugin
+    newTag: v1.0.0  # Update this to the desired version
+
+# Production-specific patches
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: argocd-repo-server
+        namespace: argocd
+      spec:
+        template:
+          spec:
+            containers:
+              - name: argocd-repo-server
+                # Production resource limits
+                resources:
+                  limits:
+                    cpu: 2000m
+                    memory: 2Gi
+                  requests:
+                    cpu: 500m
+                    memory: 512Mi
+    target:
+      kind: Deployment
+      name: argocd-repo-server
+
+# Production-specific labels (metadata only, not selectors)
+labels:
+  - pairs:
+      environment: production
+    includeSelectors: false
+
+# Production-specific annotations
+commonAnnotations:
+  deployed-by: "kustomize"

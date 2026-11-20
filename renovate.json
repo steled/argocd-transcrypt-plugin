@@ -1,0 +1,116 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "github>steled/renovate-config",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "quay.io/argoproj/argocd"
+      ],
+      "groupName": "ArgoCD",
+      "automerge": false,
+      "commitMessagePrefix": "feat(deps):",
+      "semanticCommitType": "feat",
+      "semanticCommitScope": "deps"
+    },
+    {
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "elasticdog/transcrypt"
+      ],
+      "groupName": "Transcrypt",
+      "automerge": false,
+      "commitMessagePrefix": "feat(deps):",
+      "semanticCommitType": "feat",
+      "semanticCommitScope": "deps"
+    }
+  ],
+  "dockerfile": {
+    "enabled": true,
+    "managerFilePatterns": [
+      "/docker/Dockerfile/"
+    ]
+  },
+  "kubernetes": {
+    "enabled": true,
+    "managerFilePatterns": [
+      "/kubernetes/.+\\.yaml$/"
+    ]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/docker/Dockerfile/"
+      ],
+      "matchStrings": [
+        "ARG ARGOCD_VERSION=(?<currentValue>.*?)\\n"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "quay.io/argoproj/argocd"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/docker/Dockerfile/"
+      ],
+      "matchStrings": [
+        "ARG TRANSCRYPT_VERSION=(?<currentValue>.*?)\\n"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "elasticdog/transcrypt"
+    },
+    {
+      "customType": "regex",
+      "description": "Update ARGOCD_VERSION in workflows",
+      "managerFilePatterns": [
+        "/\\.github/workflows/.+\\.yaml$/"
+      ],
+      "matchStrings": [
+        "ARGOCD_VERSION=(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "quay.io/argoproj/argocd"
+    },
+    {
+      "customType": "regex",
+      "description": "Update ARGOCD_VERSION in documentation",
+      "managerFilePatterns": [
+        "/README\\.md$/",
+        "/docs/.+\\.md$/",
+        "/docker/README\\.md$/"
+      ],
+      "matchStrings": [
+        "ARGOCD_VERSION=(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "quay.io/argoproj/argocd"
+    },
+    {
+      "customType": "regex",
+      "description": "Update TRANSCRYPT_VERSION in documentation",
+      "managerFilePatterns": [
+        "/README\\.md$/",
+        "/docs/.+\\.md$/",
+        "/docker/README\\.md$/"
+      ],
+      "matchStrings": [
+        "TRANSCRYPT_VERSION=(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "elasticdog/transcrypt"
+    }
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "timezone": "Europe/Berlin"
+}

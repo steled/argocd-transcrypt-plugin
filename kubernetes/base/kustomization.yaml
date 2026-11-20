@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: argocd
+
+resources:
+  - transcrypt-secret.yaml
+  - image-pull-secret.yaml
+  - repo-server-patch.yaml
+
+# ConfigMapGenerator for git configuration (optional)
+# Uncomment if you need additional git configuration
+# configMapGenerator:
+#   - name: argocd-repo-server-git-config
+#     files:
+#       - gitconfig
+
+# SecretGenerator for transcrypt password (alternative to manual secret creation)
+# Uncomment and populate if you want Kustomize to generate the secret
+# WARNING: Do not commit actual passwords to Git!
+# secretGenerator:
+#   - name: transcrypt-password
+#     literals:
+#       - github.com_myorg_myrepo=REPLACE_WITH_YOUR_PASSWORD
+#       - cipher=aes-256-cbc
+
+# Common labels applied to all resources (metadata only, not selectors)
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: argocd
+      app.kubernetes.io/component: transcrypt-plugin
+    includeSelectors: false
+
+# Common annotations
+commonAnnotations:
+  managed-by: kustomize
+  documentation: "https://github.com/steled/argocd-transcrypt-plugin"

@@ -1,0 +1,60 @@
+# Secrets and credentials
+*.key
+*.pem
+*.p12
+*.pfx
+.secrets/
+transcrypt-password.txt
+
+# Test artifacts
+.test-artifacts/
+test-results/
+coverage/
+*.log
+
+# Kind clusters
+kind-config.yaml
+.kube/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Docker
+.docker-build/
+*.tar
+
+# Node (for commitlint)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Backup files
+*.bak
+*.backup
+
+# CI/CD
+.github-token
+.ghcr-token

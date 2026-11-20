@@ -1,0 +1,141 @@
+name: Auto Release on Dependency Update
+
+# This workflow automatically creates a new release tag when the ArgoCD or transcrypt version is updated via Renovate.
+# After creating the tag, it triggers the release.yaml workflow via workflow_dispatch API call.
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  check-and-release:
+    name: Check for Dependency Updates and Create Release
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'dependencies')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Check if ArgoCD or transcrypt version was updated
+        id: check
+        run: |
+          # Current versions from the Dockerfile on main
+          CURRENT_VERSION=$(grep "ARG ARGOCD_VERSION=" docker/Dockerfile | cut -d'=' -f2)
+          CURRENT_TRANSCRYPT=$(grep "ARG TRANSCRYPT_VERSION=" docker/Dockerfile | cut -d'=' -f2)
+
+          # Get latest release tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No previous tag found, treating as first release"
+            ARGOCD_UPDATED=true
+            LATEST_TAG="v0.0.0"
+          else
+            # Compare versions in the Dockerfile at last tag vs. current
+            PREVIOUS_VERSION=$(git show "$LATEST_TAG:docker/Dockerfile" | grep "ARG ARGOCD_VERSION=" | cut -d'=' -f2)
+            PREVIOUS_TRANSCRYPT=$(git show "$LATEST_TAG:docker/Dockerfile" | grep "ARG TRANSCRYPT_VERSION=" | cut -d'=' -f2)
+            if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ] || [ "$CURRENT_TRANSCRYPT" != "$PREVIOUS_TRANSCRYPT" ]; then
+              ARGOCD_UPDATED=true
+              echo "✅ ArgoCD: $PREVIOUS_VERSION → $CURRENT_VERSION, transcrypt: $PREVIOUS_TRANSCRYPT → $CURRENT_TRANSCRYPT"
+            else
+              ARGOCD_UPDATED=false
+              echo "ℹ️  Versions unchanged (ArgoCD $CURRENT_VERSION, transcrypt $CURRENT_TRANSCRYPT)"
+            fi
+          fi
+
+          echo "argocd_updated=$ARGOCD_UPDATED" >> $GITHUB_OUTPUT
+          echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "new_transcrypt=$CURRENT_TRANSCRYPT" >> $GITHUB_OUTPUT
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Calculate next version
+        id: next_version
+        if: steps.check.outputs.argocd_updated == 'true'
+        run: |
+          LATEST_TAG="${{ steps.check.outputs.latest_tag }}"
+          
+          # Remove 'v' prefix and split version
+          VERSION=${LATEST_TAG#v}
+          IFS='.' read -r -a parts <<< "$VERSION"
+          
+          MAJOR=${parts[0]:-0}
+          MINOR=${parts[1]:-0}
+          PATCH=${parts[2]:-0}
+          
+          # Increment minor version for ArgoCD/transcrypt updates (new features/compatibility)
+          MINOR=$((MINOR + 1))
+          PATCH=0
+          
+          NEXT_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "Next version will be: $NEXT_VERSION"
+      
+      - name: Configure Git
+        if: steps.check.outputs.argocd_updated == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Create and push tag
+        if: steps.check.outputs.argocd_updated == 'true'
+        id: create_tag
+        run: |
+          NEXT_VERSION="${{ steps.next_version.outputs.next_version }}"
+          ARGOCD_VERSION="${{ steps.check.outputs.new_version }}"
+          TRANSCRYPT_VERSION="${{ steps.check.outputs.new_transcrypt }}"
+          
+          # Create annotated tag
+          git tag -a "$NEXT_VERSION" -m "chore: update dependencies (ArgoCD $ARGOCD_VERSION, transcrypt $TRANSCRYPT_VERSION)
+
+          - ArgoCD base image: $ARGOCD_VERSION
+          - transcrypt: $TRANSCRYPT_VERSION
+          - Automated release via renovate dependency update"
+          
+          # Push tag
+          git push origin "$NEXT_VERSION"
+          
+          echo "✅ Created and pushed tag: $NEXT_VERSION"
+          echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Trigger release workflow
+        if: steps.check.outputs.argocd_updated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ steps.create_tag.outputs.version }}"
+          echo "Triggering release workflow for version: $version"
+          
+          curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/release.yaml/dispatches" \
+            -d '{"ref":"main","inputs":{"tag":"'"$version"'"}}'
+          
+          echo "✅ Release workflow triggered successfully for $version!"
+      
+      - name: Summary
+        if: steps.check.outputs.argocd_updated == 'true'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "## 🚀 Auto-Release Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR:** #${{ github.event.pull_request.number }} - ${PR_TITLE}" >> $GITHUB_STEP_SUMMARY
+          echo "- **ArgoCD Version:** ${{ steps.check.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **transcrypt Version:** ${{ steps.check.outputs.new_transcrypt }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **New Release Tag:** ${{ steps.next_version.outputs.next_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Release Workflow:** Triggered via workflow_dispatch API" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The release.yaml workflow is now building and publishing the new version." >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,48 @@
+# Docker Build Context Ignore File
+# Files and directories to exclude from Docker build context
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+docs/
+
+# CI/CD
+.github/
+
+# Kubernetes manifests
+kubernetes/
+
+# Tests
+tests/
+test-*.sh
+
+# Examples
+examples/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+*.log
+*.tmp
+dist/
+build/
+
+# Secrets (never include)
+*secret*
+*password*
+*.key
+*.pem
+*.crt
+.env
+.env.local

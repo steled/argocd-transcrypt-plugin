@@ -45,7 +45,7 @@ gh secret set RENOVATE_TOKEN --repo steled/argocd-transcrypt-plugin
 ## Repository Settings
 
 - **Default branch:** `main`
-- **Actions > General > Workflow permissions:** "Read and write permissions" and "Allow GitHub Actions to create and approve pull requests"
+- **Actions > General > Workflow permissions:** "Read repository contents and packages permissions" (the workflows request what they need via `permissions:`) and "Allow GitHub Actions to create and approve pull requests" (needed for the version reference PR)
 - **Labels:** a `dependencies` label must exist (Renovate sets it, `auto-release.yaml` evaluates it)
 - **Packages:** after the first release, set the visibility of the `argocd-transcrypt-plugin` package under *Package settings* as desired (public to allow pulls without an image pull secret)
 

@@ -93,6 +93,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             ARGOCD_VERSION=${{ steps.version.outputs.ARGOCD_VERSION }}
+            PLUGIN_VERSION=${{ steps.version.outputs.VERSION }}
       
       - name: Run tests
         env:
@@ -149,6 +150,7 @@ jobs:
           cache-from: type=gha
           build-args: |
             ARGOCD_VERSION=${{ steps.version.outputs.ARGOCD_VERSION }}
+            PLUGIN_VERSION=${{ steps.version.outputs.VERSION }}
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
@@ -192,6 +194,23 @@ jobs:
           # shellcheck disable=SC2086
           sed -i -E "s#(ghcr\.io/steled/argocd-transcrypt-plugin:)v[0-9]+\.[0-9]+\.[0-9]+([^0-9.-]|$)#\1${VERSION}\2#g" $FILES
           sed -i -E "s#(newTag: )v[0-9]+\.[0-9]+\.[0-9]+#\1${VERSION}#" kubernetes/overlays/production/kustomization.yaml
+
+          # Add a row to the version table in the README (newest first)
+          ARGOCD_VERSION=$(grep "ARG ARGOCD_VERSION=" docker/Dockerfile | cut -d'=' -f2)
+          TRANSCRYPT_VERSION=$(grep "ARG TRANSCRYPT_VERSION=" docker/Dockerfile | cut -d'=' -f2)
+          ROW="| ${VERSION} | ${ARGOCD_VERSION} | ${TRANSCRYPT_VERSION} |"
+          if ! grep -qF "| ${VERSION} |" README.md; then
+            python3 - "$ROW" <<'PYEOF'
+          import sys
+          row = sys.argv[1]
+          lines = open("README.md").read().split("\n")
+          for i, line in enumerate(lines):
+              if line.startswith("| Plugin version"):
+                  lines.insert(i + 2, row)
+                  break
+          open("README.md", "w").write("\n".join(lines))
+          PYEOF
+          fi
 
           if git diff --quiet; then
             echo "No version reference changes to commit"

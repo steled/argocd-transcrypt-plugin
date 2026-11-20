@@ -5,7 +5,11 @@ ARG ARGOCD_VERSION=v3.5.6
 FROM quay.io/argoproj/argocd:${ARGOCD_VERSION}
 
 # Build arguments
+# (ARGOCD_VERSION is re-declared so that it can be used in the labels below)
+ARG ARGOCD_VERSION
 ARG TRANSCRYPT_VERSION=v2.3.2
+# Release version of this plugin (set by the release workflow)
+ARG PLUGIN_VERSION=dev
 
 # Switch to root for installation
 USER 0
@@ -58,6 +62,10 @@ LABEL maintainer="steled" \
       org.opencontainers.image.title="ArgoCD Transcrypt Plugin" \
       org.opencontainers.image.description="ArgoCD repo-server with transcrypt support" \
       org.opencontainers.image.licenses="Apache-2.0" \
+      org.opencontainers.image.version="${PLUGIN_VERSION}" \
+      org.opencontainers.image.base.name="quay.io/argoproj/argocd:${ARGOCD_VERSION}" \
+      io.github.steled.argocd-version="${ARGOCD_VERSION}" \
+      io.github.steled.transcrypt-version="${TRANSCRYPT_VERSION}" \
       org.opencontainers.image.source="https://github.com/steled/argocd-transcrypt-plugin" \
       org.opencontainers.image.documentation="https://github.com/steled/argocd-transcrypt-plugin/blob/main/README.md"
 

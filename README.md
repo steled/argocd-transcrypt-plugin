@@ -294,7 +294,20 @@ This project uses [Semantic Versioning](https://semver.org/):
 - **MINOR**: New features, ArgoCD base image updates (non-breaking)
 - **PATCH**: Bug fixes, documentation updates
 
-Releases are created by the release workflow when a `v*` tag is pushed (ArgoCD updates via Renovate are tagged automatically).
+Releases are created by the release workflow when a `v*` tag is pushed (ArgoCD and transcrypt updates via Renovate are tagged automatically).
+
+### Image tags and contained versions
+
+Image tags have the form `<argocd-version>-transcrypt-<plugin-version>` (for example `v3.5.6-transcrypt-v1.0.0`), where `<plugin-version>` is the release version of this repository, not the transcrypt version. The versions contained in an image are also stored as OCI labels:
+
+```bash
+docker inspect ghcr.io/steled/argocd-transcrypt-plugin:v1.0.0 \
+  --format '{{ index .Config.Labels "org.opencontainers.image.version" }} / ArgoCD {{ index .Config.Labels "io.github.steled.argocd-version" }} / transcrypt {{ index .Config.Labels "io.github.steled.transcrypt-version" }}'
+```
+
+| Plugin version | ArgoCD | transcrypt |
+|----------------|--------|------------|
+| v1.0.0 | v3.5.6 | v2.3.2 |
 
 ## License
 

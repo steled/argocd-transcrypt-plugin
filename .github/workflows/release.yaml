@@ -95,9 +95,10 @@ jobs:
             ARGOCD_VERSION=${{ steps.version.outputs.ARGOCD_VERSION }}
       
       - name: Run tests
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }}
         run: |
-          chmod +x tests/test-git-wrapper.sh
-          ./tests/test-git-wrapper.sh
+          ./tests/test-git-wrapper.sh "$IMAGE"
       
       - name: Run integration tests
         run: |

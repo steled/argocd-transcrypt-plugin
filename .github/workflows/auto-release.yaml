@@ -1,4 +1,4 @@
-name: Auto Release on Dependency Update
+name: 🚀 Auto Release on Dependency Update
 
 # This workflow automatically creates a new release tag when the ArgoCD or transcrypt version is updated via Renovate.
 # After creating the tag, it triggers the release.yaml workflow via workflow_dispatch API call.

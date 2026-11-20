@@ -247,7 +247,7 @@ cd docker
 
 # Build with new ArgoCD version
 docker build \
-  --build-arg ARGOCD_VERSION=v3.5.6 \
+  --build-arg ARGOCD_VERSION=v3.6.2 \
   -t ghcr.io/steled/argocd-transcrypt-plugin:v1.2.0-argocd-v2.11.0 \
   .
 

@@ -290,7 +290,7 @@ docker build -t argocd-transcrypt-plugin:dev .
 
 # Build with specific ArgoCD version
 docker build \
-  --build-arg ARGOCD_VERSION=v3.5.6 \
+  --build-arg ARGOCD_VERSION=v3.6.2 \
   -t argocd-transcrypt-plugin:dev-argocd-v2.10.0 \
   .
 
@@ -697,7 +697,7 @@ docker info
 docker build --progress=plain -t test .
 
 # Check build args
-docker build --build-arg ARGOCD_VERSION=v3.5.6 -t test .
+docker build --build-arg ARGOCD_VERSION=v3.6.2 -t test .
 ```
 
 #### Issue: Wrapper tests fail

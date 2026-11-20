@@ -86,7 +86,7 @@ This project solves that problem by providing a custom ArgoCD repo-server image 
 ```bash
 cd docker
 docker build \
-  --build-arg ARGOCD_VERSION=v3.5.6 \
+  --build-arg ARGOCD_VERSION=v3.6.2 \
   -t ghcr.io/steled/argocd-transcrypt-plugin:v1.1.0 \
   .
 docker push ghcr.io/steled/argocd-transcrypt-plugin:v1.1.0

@@ -68,7 +68,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            ARGOCD_VERSION=v3.5.6
+            ARGOCD_VERSION=v3.6.2
       
       - name: Test Docker image
         run: |
@@ -97,7 +97,7 @@ jobs:
           tags: argocd-transcrypt-plugin:test
           cache-from: type=gha
           build-args: |
-            ARGOCD_VERSION=v3.5.6
+            ARGOCD_VERSION=v3.6.2
       
       - name: Run unit tests
         run: ./tests/test-git-wrapper.sh
@@ -142,7 +142,7 @@ jobs:
   #         tags: argocd-transcrypt-plugin:test
   #         cache-from: type=gha
   #         build-args: |
-  #           ARGOCD_VERSION=v3.5.6
+  #           ARGOCD_VERSION=v3.6.2
       
   #     - name: Scan image with Trivy
   #       uses: aquasecurity/trivy-action@0.33.1

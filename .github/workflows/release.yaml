@@ -164,6 +164,10 @@ jobs:
           VERSION: ${{ steps.version.outputs.VERSION }}
           COMBINED_TAG: ${{ steps.version.outputs.COMBINED_TAG }}
         run: |
+          # The tag may have been created by the release step above (workflow_dispatch)
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --tags --force origin
+
           # Only the newest release updates the references (not re-runs of old tags)
           LATEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
           if [ "$LATEST" != "$VERSION" ]; then

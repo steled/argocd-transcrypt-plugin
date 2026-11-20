@@ -19,7 +19,7 @@ docker build \
 # Build with specific transcrypt version
 docker build \
   --build-arg ARGOCD_VERSION=v3.5.6 \
-  --build-arg TRANSCRYPT_VERSION=v2.2.3 \
+  --build-arg TRANSCRYPT_VERSION=v2.3.2 \
   -t argocd-transcrypt-plugin:v1.0.0 \
   .
 ```
@@ -101,7 +101,7 @@ Excludes unnecessary files from Docker build context.
 ```bash
 docker build \
   --build-arg ARGOCD_VERSION=v3.5.6 \
-  --build-arg TRANSCRYPT_VERSION=v2.2.3 \
+  --build-arg TRANSCRYPT_VERSION=v2.3.2 \
   -t argocd-transcrypt-plugin:custom \
   .
 ```
@@ -153,7 +153,7 @@ ERROR: curl: (22) The requested URL returned error: 404 Not Found
 curl -s https://api.github.com/repos/elasticdog/transcrypt/tags | jq -r '.[].name'
 
 # Use valid version
-docker build --build-arg TRANSCRYPT_VERSION=v2.2.3 -t test .
+docker build --build-arg TRANSCRYPT_VERSION=v2.3.2 -t test .
 ```
 
 #### Issue: Base image not found
@@ -266,7 +266,7 @@ When a new transcrypt version is released:
 1. **Check release notes** for breaking changes
 2. **Build with new version:**
    ```bash
-   docker build --build-arg TRANSCRYPT_VERSION=v2.3.0 -t test .
+   docker build --build-arg TRANSCRYPT_VERSION=v2.3.2 -t test .
    ```
 3. **Test encryption/decryption** with your repositories
 4. **Update documentation** if needed

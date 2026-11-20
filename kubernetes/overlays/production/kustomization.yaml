@@ -9,7 +9,7 @@ resources:
 # Override image tag for production
 images:
   - name: ghcr.io/steled/argocd-transcrypt-plugin
-    newTag: v1.0.0  # Update this to the desired version
+    newTag: v1.1.0  # Update this to the desired version
 
 # Production-specific patches
 patches:

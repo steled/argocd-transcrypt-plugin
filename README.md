@@ -81,15 +81,15 @@ This project solves that problem by providing a custom ArgoCD repo-server image 
 
 ### Installation
 
-1. **Get the custom ArgoCD repo-server image.** Released versions are published to `ghcr.io/steled/argocd-transcrypt-plugin` (tag `<argocd-version>-transcrypt-<plugin-version>`, e.g. `v3.5.6-transcrypt-v1.1.0`). To build it yourself:
+1. **Get the custom ArgoCD repo-server image.** Released versions are published to `ghcr.io/steled/argocd-transcrypt-plugin` (tag `<argocd-version>-transcrypt-<plugin-version>`, e.g. `v3.6.2-transcrypt-v1.2.0`). To build it yourself:
 
 ```bash
 cd docker
 docker build \
   --build-arg ARGOCD_VERSION=v3.6.2 \
-  -t ghcr.io/steled/argocd-transcrypt-plugin:v1.1.0 \
+  -t ghcr.io/steled/argocd-transcrypt-plugin:v1.2.0 \
   .
-docker push ghcr.io/steled/argocd-transcrypt-plugin:v1.1.0
+docker push ghcr.io/steled/argocd-transcrypt-plugin:v1.2.0
 ```
 
 2. **Create Kubernetes Secret with transcrypt password:**
@@ -298,15 +298,16 @@ Releases are created by the release workflow when a `v*` tag is pushed (ArgoCD a
 
 ### Image tags and contained versions
 
-Image tags have the form `<argocd-version>-transcrypt-<plugin-version>` (for example `v3.5.6-transcrypt-v1.1.0`), where `<plugin-version>` is the release version of this repository, not the transcrypt version. The versions contained in an image are also stored as OCI labels:
+Image tags have the form `<argocd-version>-transcrypt-<plugin-version>` (for example `v3.6.2-transcrypt-v1.2.0`), where `<plugin-version>` is the release version of this repository, not the transcrypt version. The versions contained in an image are also stored as OCI labels:
 
 ```bash
-docker inspect ghcr.io/steled/argocd-transcrypt-plugin:v1.1.0 \
+docker inspect ghcr.io/steled/argocd-transcrypt-plugin:v1.2.0 \
   --format '{{ index .Config.Labels "org.opencontainers.image.version" }} / ArgoCD {{ index .Config.Labels "io.github.steled.argocd-version" }} / transcrypt {{ index .Config.Labels "io.github.steled.transcrypt-version" }}'
 ```
 
 | Plugin version | ArgoCD | transcrypt |
 |----------------|--------|------------|
+| v1.2.0 | v3.6.2 | v2.3.2 |
 | v1.1.0 | v3.5.6 | v2.3.2 |
 | v1.0.0 | v3.5.6 | v2.3.2 |
 

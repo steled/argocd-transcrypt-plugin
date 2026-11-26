@@ -12,13 +12,13 @@ docker build -t argocd-transcrypt-plugin:latest .
 
 # Build with specific ArgoCD version
 docker build \
-  --build-arg ARGOCD_VERSION=v3.6.2 \
+  --build-arg ARGOCD_VERSION=v3.6.3 \
   -t argocd-transcrypt-plugin:v1.0.0 \
   .
 
 # Build with specific transcrypt version
 docker build \
-  --build-arg ARGOCD_VERSION=v3.6.2 \
+  --build-arg ARGOCD_VERSION=v3.6.3 \
   --build-arg TRANSCRYPT_VERSION=v2.3.2 \
   -t argocd-transcrypt-plugin:v1.0.0 \
   .
@@ -100,7 +100,7 @@ Excludes unnecessary files from Docker build context.
 
 ```bash
 docker build \
-  --build-arg ARGOCD_VERSION=v3.6.2 \
+  --build-arg ARGOCD_VERSION=v3.6.3 \
   --build-arg TRANSCRYPT_VERSION=v2.3.2 \
   -t argocd-transcrypt-plugin:custom \
   .
@@ -168,7 +168,7 @@ ERROR: failed to solve: quay.io/argoproj/argocd:v2.99.99: not found
 curl -s https://api.github.com/repos/argoproj/argo-cd/releases | jq -r '.[].tag_name' | head -20
 
 # Use valid version
-docker build --build-arg ARGOCD_VERSION=v3.6.2 -t test .
+docker build --build-arg ARGOCD_VERSION=v3.6.3 -t test .
 ```
 
 ### Runtime Issues
@@ -253,7 +253,7 @@ When a new ArgoCD version is released:
 1. **Check compatibility** with transcrypt and Kubernetes
 2. **Build with new version:**
    ```bash
-   docker build --build-arg ARGOCD_VERSION=v3.6.2 -t test .
+   docker build --build-arg ARGOCD_VERSION=v3.6.3 -t test .
    ```
 3. **Run tests** (see [../tests/README.md](../tests/README.md))
 4. **Update documentation** if behavior changes

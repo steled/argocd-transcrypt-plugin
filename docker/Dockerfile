@@ -1,5 +1,5 @@
 # Syntax: https://docs.docker.com/engine/reference/builder/
-ARG ARGOCD_VERSION=v3.6.2
+ARG ARGOCD_VERSION=v3.6.3
 
 # Use official ArgoCD image as base
 FROM quay.io/argoproj/argocd:${ARGOCD_VERSION}

@@ -23,7 +23,7 @@ repoServer:
   image:
     repository: ghcr.io/steled/argocd-transcrypt-plugin
     # Combined tag: <argocd-version>-transcrypt-<plugin-version>
-    tag: v3.6.2-transcrypt-v1.2.0
+    tag: v3.6.3-transcrypt-v1.3.0
 
   env:
     - name: TRANSCRYPT_CIPHER

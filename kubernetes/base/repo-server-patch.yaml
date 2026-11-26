@@ -10,7 +10,7 @@ spec:
       containers:
         - name: argocd-repo-server
           # Custom image with transcrypt support
-          image: ghcr.io/steled/argocd-transcrypt-plugin:v1.2.0
+          image: ghcr.io/steled/argocd-transcrypt-plugin:v1.3.0
           imagePullPolicy: IfNotPresent
           
           # Environment variables for transcrypt configuration
